@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Crud_with_pagination.Models;
+using Crud_with_pagination.Validators;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -93,7 +94,14 @@ namespace StudentManagement.Controllers
         {
             if (id != tblStudent.Id)
             {
-                return BadRequest();
+                return BadRequest("ID is not Valid");
+            }
+
+            var validationResult = new StudentValidator();
+            var result = validationResult.Validate(tblStudent);
+            if (!result.IsValid)
+            {
+                return BadRequest(result.Errors);
             }
 
             _context.Entry(tblStudent).State = EntityState.Modified;
@@ -116,10 +124,19 @@ namespace StudentManagement.Controllers
 
             return Ok(tblStudent);
         }
+
         [HttpPost]
         public IActionResult CreateStudent([FromBody] TblStudent student)
         {
-            // Check if email already exists
+            var validator = new StudentValidator();
+            var result = validator.Validate(student);
+            
+            if (!result.IsValid)
+            {
+                return BadRequest(result.Errors);
+            }
+
+            
             var existingStudent = _context.Students.FirstOrDefault(s => s.Email == student.Email);
             if (existingStudent != null)
             {
@@ -128,8 +145,10 @@ namespace StudentManagement.Controllers
 
             _context.Students.Add(student);
             _context.SaveChanges();
+
             return CreatedAtAction(nameof(CreateStudent), new { id = student.Id }, student);
         }
+
 
         [HttpGet("check-email/{email}")]
         public IActionResult CheckEmailExists(string email)
