@@ -17,6 +17,7 @@ public partial class StudentRecordContext : DbContext
 
     public virtual DbSet<TblStudent> Students { get; set; }
 
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
 

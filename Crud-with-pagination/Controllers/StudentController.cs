@@ -142,7 +142,7 @@ namespace StudentManagement.Controllers
             {
                 return BadRequest("This email is already registered!");
             }
-
+            student.Date = DateTime.Now;
             _context.Students.Add(student);
             _context.SaveChanges();
 
